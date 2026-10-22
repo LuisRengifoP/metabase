@@ -3,27 +3,20 @@ import fetchMock from "fetch-mock";
 
 import { renderWithProviders, screen, waitFor, within } from "__support__/ui";
 import { UndoListing } from "metabase/common/components/UndoListing";
-import { PLUGIN_DEPENDENCIES } from "metabase/plugins";
 import { createMockDataApp } from "metabase-types/api/mocks";
 
 import { DataAppActionsMenu } from "./DataAppActionsMenu";
-
-type SetupOpts = {
-  enabled?: boolean;
-  canRemove?: boolean;
-  resourceCollectionId?: number;
-  hasDependencies?: boolean;
-};
 
 const setup = ({
   enabled = true,
   canRemove = false,
   resourceCollectionId = 9,
-  hasDependencies = false,
-}: SetupOpts = {}) => {
-  PLUGIN_DEPENDENCIES.isEnabled = hasDependencies;
+}: {
+  enabled?: boolean;
+  canRemove?: boolean;
+  resourceCollectionId?: number;
+} = {}) => {
   const app = createMockDataApp({
-    id: 4,
     name: "sales",
     display_name: "Sales",
     enabled,
@@ -50,21 +43,7 @@ const confirmRemove = async () =>
   );
 
 describe("DataAppActionsMenu", () => {
-  afterEach(() => {
-    PLUGIN_DEPENDENCIES.isEnabled = false;
-  });
-
-  it("links to the app's dependency graph when dependencies are available", async () => {
-    setup({ hasDependencies: true });
-
-    await openMenu();
-
-    expect(
-      await screen.findByRole("menuitem", { name: "View in dependency graph" }),
-    ).toHaveAttribute("href", "/data-studio/dependencies?id=4&type=data-app");
-  });
-
-  it("links to the app's resources and group above the enable action, with no graph link without dependencies", async () => {
+  it("links to the app's resources and group above the enable action", async () => {
     setup();
 
     await openMenu();
